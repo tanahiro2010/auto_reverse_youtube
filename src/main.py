@@ -32,7 +32,8 @@ def save(file_path: str, content: str) -> None:
     return
 
 def main() -> None:
-    used_video_ids = open("used_video_ids.txt", "r").read().splitlines()
+    used_video_ids = load(SAVE_DATA_FILE_PATH).splitlines()
+    print(f"Loaded {len(used_video_ids)} used video IDs.")
     return
 
 if __name__ == "__main__":
