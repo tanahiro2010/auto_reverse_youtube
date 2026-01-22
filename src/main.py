@@ -5,19 +5,20 @@ import os
 
 # Setting section
 dotenv.load_dotenv(".env")
-YOUTUBE_API_KET: str =            os.getenv("YOUTUBE_API_KEY")
-GOOGLE_CLIENT_ID: str =           os.getenv("GOOGLE_CLIENT_ID")
-GOOGLE_CLIENT_SECRET: str =       os.getenv("GOOGLE_CLIENT_SECRET")
 VIDEOS_SAVE_DATA_FILE_PATH: str = os.getenv("VIDEOS_SAVE_DATA_FILE_PATH", "data.txt")
-CONFIG_DATA_FILE_PATH: str =      os.getenv("CONFIG_DATA_FILE_PATH", "credentials.json")
-TOKEN_SAVE_FILE_PATH: str =       os.getenv("TOKEN_SAVE_FILE_PATH", "token.json")
+CONFIG_DATA_FILE_PATH: str      = os.getenv("CONFIG_DATA_FILE_PATH", "credentials.json")
+TOKEN_SAVE_FILE_PATH: str       = os.getenv("TOKEN_SAVE_FILE_PATH", "token.json")
+if not CONFIG_DATA_FILE_PATH or not TOKEN_SAVE_FILE_PATH:
+    raise ValueError("Configuration file path or token save file path is not set in environment variables.")
+
 CONFIG = Config(
-    apiKey=YOUTUBE_API_KET,
     creditsPath=CONFIG_DATA_FILE_PATH,
-    savedataPath=TOKEN_SAVE_FILE_PATH
+    savedataPath=TOKEN_SAVE_FILE_PATH,
+    scopes=[
+        "https://www.googleapis.com/auth/youtube.readonly",
+        "https://www.googleapis.com/auth/youtube.upload"
+    ]
 )
-if YOUTUBE_API_KET is None or GOOGLE_CLIENT_ID is None or GOOGLE_CLIENT_SECRET is None:
-    raise ValueError("One or more environment variables are not set.")
 
 # utility functions
 def load(file_path: str) -> str:
@@ -46,7 +47,16 @@ def main() -> None:
     if not isAuthed:
         raise PermissionError("Authentication failed.")
     
-    
+    videos = client.search_videos(
+        q="official music video mv",
+        type="video",
+        videoCategoryId=10,
+        maxResults=10,
+        videoDuration="short",
+    )
+
+    print(videos)
+
     used_video_ids = load(VIDEOS_SAVE_DATA_FILE_PATH).splitlines()
     return
 
