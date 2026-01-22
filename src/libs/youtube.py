@@ -4,13 +4,11 @@ import pickle
 import os
 
 class Config:
-    apiKey:       str
     creditsPath:  str
     savedataPath: str
     scopes:       list[str]
 
-    def __init__(self, apiKey: str, creditsPath: str, savedataPath: str, scopes: list[str]) -> None:
-        self.apiKey       = apiKey
+    def __init__(self, creditsPath: str, savedataPath: str, scopes: list[str]) -> None:
         self.creditsPath  = creditsPath
         self.savedataPath = savedataPath
         self.scopes       = scopes
@@ -51,4 +49,26 @@ class YouTube:
 
         return True
     
-
+    def get_videos(self, **kwargs) -> dict:
+        request = self.client.videos().list(
+            part="snippet,contentDetails,statistics",
+            **kwargs
+        )
+        response = request.execute()
+        return response
+    
+    def search_videos(self, **kwargs) -> dict:
+        request = self.client.search().list(
+            part="snippet",
+            **kwargs
+        )
+        response = request.execute()
+        return response
+    
+    def post_video(self, **kwargs) -> dict:
+        request = self.client.videos().insert(
+            part="snippet,status",
+            **kwargs
+        )
+        response = request.execute()
+        return response
