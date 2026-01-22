@@ -1,12 +1,21 @@
+from libs.youtube import YouTube, Config
+
 import dotenv
 import os
 
 # Setting section
 dotenv.load_dotenv(".env")
-YOUTUBE_API_KET: str =      os.getenv("YOUTUBE_API_KEY")
-GOOGLE_CLIENT_ID: str =     os.getenv("GOOGLE_CLIENT_ID")
-GOOGLE_CLIENT_SECRET: str = os.getenv("GOOGLE_CLIENT_SECRET")
-SAVE_DATA_FILE_PATH: str =  os.getenv("SAVE_DATA_FILE_PATH", "data.txt")
+YOUTUBE_API_KET: str =            os.getenv("YOUTUBE_API_KEY")
+GOOGLE_CLIENT_ID: str =           os.getenv("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET: str =       os.getenv("GOOGLE_CLIENT_SECRET")
+VIDEOS_SAVE_DATA_FILE_PATH: str = os.getenv("VIDEOS_SAVE_DATA_FILE_PATH", "data.txt")
+CONFIG_DATA_FILE_PATH: str =      os.getenv("CONFIG_DATA_FILE_PATH", "credentials.json")
+TOKEN_SAVE_FILE_PATH: str =       os.getenv("TOKEN_SAVE_FILE_PATH", "token.json")
+CONFIG = Config(
+    apiKey=YOUTUBE_API_KET,
+    creditsPath=CONFIG_DATA_FILE_PATH,
+    savedataPath=TOKEN_SAVE_FILE_PATH
+)
 if YOUTUBE_API_KET is None or GOOGLE_CLIENT_ID is None or GOOGLE_CLIENT_SECRET is None:
     raise ValueError("One or more environment variables are not set.")
 
@@ -32,8 +41,13 @@ def save(file_path: str, content: str) -> None:
     return
 
 def main() -> None:
-    used_video_ids = load(SAVE_DATA_FILE_PATH).splitlines()
-    print(f"Loaded {len(used_video_ids)} used video IDs.")
+    client = YouTube(config=CONFIG)
+    isAuthed: bool = client.auth()
+    if not isAuthed:
+        raise PermissionError("Authentication failed.")
+    
+    
+    used_video_ids = load(VIDEOS_SAVE_DATA_FILE_PATH).splitlines()
     return
 
 if __name__ == "__main__":
