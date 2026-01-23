@@ -2,4 +2,5 @@
 .env
 *.json
 
-token.picklezz
+token.pickle
+data.txt

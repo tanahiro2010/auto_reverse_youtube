@@ -1,4 +1,5 @@
 from __future__ import annotations
+from requests import Response
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 import requests
@@ -104,11 +105,8 @@ class YouTube:
             raise ConnectionError("Failed to download video data from the external service.")
         
         data: dict = response.json()
-        url = data.get("data", { "download_url": None }).get("download_url", None)
-        print(url)
-        
-        response = session.get(url)
-        print(response.status_code)
+        url: str | None = data.get("data", { "download_url": None }).get("download_url", None)
+        response: Response = session.get(url)
         if not response.ok:
             raise ConnectionError("Failed to download video content from the provided URL.")
         
