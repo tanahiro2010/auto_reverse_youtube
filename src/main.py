@@ -1,5 +1,5 @@
 from libs.youtube import YouTube, Config
-
+from libs.media import Media
 import dotenv
 import os
 
@@ -82,6 +82,12 @@ def main() -> None:
     save(VIDEOS_SAVE_DATA_FILE_PATH, "\n".join(used_video_ids))
 
     # 反転
+    video = Media("{}{}.mp4".format(TEMP_DIR_PATH, video_id))
+    audio = video.extract_audio("{}{}_audio.mp3".format(TEMP_DIR_PATH, video_id))
+    reversed_audio = audio.reverse("{}{}_audio_reversed.mp3".format(TEMP_DIR_PATH, video_id))
+    video.close()
+    audio.close()
+    reversed_audio.close()
 
     
 
