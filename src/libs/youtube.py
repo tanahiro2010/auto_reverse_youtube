@@ -1,5 +1,7 @@
+from __future__ import annotations
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
+import requests
 import pickle
 import os
 
@@ -7,11 +9,13 @@ class Config:
     creditsPath:  str
     savedataPath: str
     scopes:       list[str]
+    base_url:     str
 
-    def __init__(self, creditsPath: str, savedataPath: str, scopes: list[str]) -> None:
+    def __init__(self, creditsPath: str, savedataPath: str, scopes: list[str], base_url: str = "https://ytdl-next.tanahiro2010.com") -> None:
         self.creditsPath  = creditsPath
         self.savedataPath = savedataPath
         self.scopes       = scopes
+        self.base_url     = base_url
         return
     
 
@@ -72,3 +76,40 @@ class YouTube:
         )
         response = request.execute()
         return response
+
+    def download_video(self, video_id: str) -> bytes:
+        endpoint = "{}/api".format(self.config.base_url)
+        payload = {
+            "url": "https://www.youtube.com/watch?v={}".format(video_id)
+        }
+        headers = {
+            "User-Agent":           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+            "Accept":               "video/webm,video/ogg,video/*;q=0.9,application/ogg;q=0.7,audio/*;q=0.6,*/*;q=0.5",
+            "Accept-Language":      "ja,en-US;q=0.9,en;q=0.8",
+            "Accept-Encoding":      "identity;q=1, *;q=0",
+            "Range":                "bytes=0-",
+            "Sec-Ch-Ua":            '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
+            "Sec-Ch-Ua-Mobile":     "?0",
+            "Sec-Ch-Ua-Platform":   '"Windows"',
+            "Sec-Fetch-Dest":       "video",
+            "Sec-Fetch-Mode":       "no-cors",
+            "Sec-Fetch-Site":       "cross-site"
+        }
+        session = requests.Session()
+        session.headers.update(headers)
+
+
+        response = requests.post(endpoint, json=payload)
+        if not response.ok:
+            raise ConnectionError("Failed to download video data from the external service.")
+        
+        data: dict = response.json()
+        url = data.get("data", { "download_url": None }).get("download_url", None)
+        print(url)
+        
+        response = session.get(url)
+        print(response.status_code)
+        if not response.ok:
+            raise ConnectionError("Failed to download video content from the provided URL.")
+        
+        return response.content
