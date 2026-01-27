@@ -2,6 +2,7 @@ from __future__ import annotations
 from requests import Response
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
+from googleapiclient.http import MediaFileUpload
 import requests
 import pickle
 import os
@@ -70,10 +71,29 @@ class YouTube:
         response = request.execute()
         return response
     
-    def post_video(self, **kwargs) -> dict:
+    def upload(self, file_path: str, title: str, description: str = "", tags: list[str] = None, category_id: str = "10", privacy_status: str = "private") -> dict:
+        body = {
+            "snippet": {
+                "title": title,
+                "description": description,
+                "tags": tags or [],
+                "categoryId": category_id
+            },
+            "status": {
+                "privacyStatus": privacy_status  # "public", "private", "unlisted"
+            }
+        }
+        
+        media = MediaFileUpload(
+            file_path,
+            mimetype="video/*",
+            resumable=True
+        )
+        
         request = self.client.videos().insert(
             part="snippet,status",
-            **kwargs
+            body=body,
+            media_body=media
         )
         response = request.execute()
         return response
