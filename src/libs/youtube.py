@@ -71,7 +71,7 @@ class YouTube:
         response = request.execute()
         return response
     
-    def upload(self, file_path: str, title: str, description: str = "", tags: list[str] = None, category_id: str = "10", privacy_status: str = "private") -> dict:
+    def upload(self, file_path: str, title: str, description: str = "", tags: list[str] = None, category_id: str = "10", privacy_status: str = "private", made_for_kids: bool = False) -> dict:
         body = {
             "snippet": {
                 "title": title,
@@ -80,7 +80,8 @@ class YouTube:
                 "categoryId": category_id
             },
             "status": {
-                "privacyStatus": privacy_status  # "public", "private", "unlisted"
+                "privacyStatus": privacy_status,  # "public", "private", "unlisted"
+                "madeForKids": made_for_kids
             }
         }
         
