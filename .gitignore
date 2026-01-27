@@ -4,3 +4,8 @@
 
 token.pickle
 data.txt
+temp
+__pycache__/
+*.pyc
+.DS_Store
+**/*.wav
